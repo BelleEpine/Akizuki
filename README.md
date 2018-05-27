@@ -20,10 +20,7 @@ Written as a personal project, this is my first foray into something as advanced
 * In \Akizuki\Akizuki\config.py , enter the bot token and prefix you would like to use, **OR** into config.txt with the token first and prefix separated by a line.
 * Either run runbot.bat or manually run \Akizuki\Akizuki\Akizuki.py on the command line.
 
-
-# Contact
-* t1mtimmy at live.com
-
 # Etc.
 
-*Akizuki is named after the WWII Era Destroyer.*
+* *Akizuki is named after the WWII Era Destroyer.*
+* I'm still learning, don't mind any horrible mistakes! :)
