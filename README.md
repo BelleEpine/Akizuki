@@ -16,8 +16,8 @@ Written as a personal project, this is my first foray into something as advanced
 
 **Or, manual set up:**
 
-*Install dependencies
-*In \Akizuki\Akizuki\config.py , enter the bot token and prefix you would like to use, **OR** into config.txt with the token first and prefix separated by a line.
+* Install dependencies
+* In \Akizuki\Akizuki\config.py , enter the bot token and prefix you would like to use, **OR** into config.txt with the token first and prefix separated by a line.
 * Either run runbot.bat or manually run \Akizuki\Akizuki\Akizuki.py on the command line.
 
 
