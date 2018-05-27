@@ -1,0 +1,5 @@
+Config History for Akizuki
+Date of update:2018-05-27 18:16:10.286003
+Bot Token: 123
+Bot Prefix: !
+
