@@ -8,6 +8,9 @@
 # - More on-event responses
 # - Interact with other files More
 # - Require administrator perms for some commands
+# - **Make the project structure look better and make more sense**
+# - Make this a main file with cogs in other files? 
+# - Make a class out of the bot setup and just make an instance of the bot?
 
 
 # Imports dependencies.
