@@ -29,7 +29,7 @@ class filesCog:
 
         # personal note: Since cog is loaded in akizuki.py which is a directory down, tags.txt is not in that directory and will not load. So, must specify the directory.
         # For example, a tag stored as "HelloWorld HELLOTHEREIAMADIVIDER Hello, World!" will return a list of ['HelloWorld', 'Hello, World!']
-        with open("cogs/tags.txt", "r") as mytags:
+        with open("cogs/tags.txt", "a+") as mytags:
             for line in mytags:
                 currentline = line.rstrip().split(" HELLOTHEREIAMADIVIDER ")    #This is how the tags are stored. The giant divider is meant to prevent the .split() from unintentionally messing stuff up,
                 self.tagdictionary[currentline[0]] = currentline[1]
