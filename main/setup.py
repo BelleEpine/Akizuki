@@ -1,9 +1,5 @@
 """Python file to recieve the bot token and prefix from the user in a nice looking GUI program. Includes a setup class and a main function. Within the setup class, you will find several functions:
-    askUser will prompt the user for their token and prefix.
-    validityCheck will ensure that the user's inputs are valid.
-    confirmation will check with the user to confirm their inputs.
-    configAssign will write the user's token and prefix to a config.txt file.
-    configLogging will append the new change to confighistory.txt.
+
 """
 
 # Imports dependencies
@@ -19,10 +15,20 @@ import datetime
 
 
 class setup(object):
+    """
+    Class for the setup.
 
-    # Initiating variables. Some should be obvious by looking.
-    # confirmquestion is the question that will be asked b/c of awkward tk syntax, and userconfirmation will be the boolean for whether the user is content with their inputs.
+    Will walk the user through the setup, asking them for various inputs to get the bot ready to start running.
+    """
+
+
     def __init__(self, bot_token, bot_prefix):
+        """
+        Initializes variables.
+
+        :param bot_token: The bot token
+        :param bot_prefix: The bot prefix
+        """
         self.window = tk.Tk()
         self.window.withdraw()  # Hides root menu to make it look cleaner.
         self.token = bot_token
@@ -30,10 +36,14 @@ class setup(object):
         self.confirmquestion = ""
         self.userconfirmation = ""
 
-        self.now = datetime.datetime.now()  # This will be used in
+        self.now = datetime.datetime.now()
 
-    # Put together a series of input GUIs to obtain input from the user, also counts for users pressing cancel to exit the setup process.
     def askUser(self):
+        """
+        Asks user for their token and prefix.
+
+        :return: void function
+        """
         self.bot_token = simpledialog.askstring(
             "Input", "What is the bot token?", parent=self.window)
 
@@ -48,8 +58,13 @@ class setup(object):
             messagebox.showerror("Error", "Setup has been cancelled.")
             sys.exit()
 
-    # Checks user inputs against various statements to ensure that it is valid, restarting the program if they fail to pass the checks.
+
     def validityCheck(self):
+        """
+        Checks the user's inputs against various conditions that would be problematic for the bot.
+
+        :return: void function
+        """
         # Looks for empty inputs and prefixes of purely spaces
         if self.bot_token != "" and self.bot_prefix != "" and not self.bot_prefix.isspace():
             print("Valid input.")  # Just printing to the console.
@@ -59,8 +74,13 @@ class setup(object):
                 "Warning", "One of your inputs is invalid. The program will run again.")
             main()
 
-    # Confirms users inputs with them again.
+
     def confirmation(self):
+        """
+        Confirms the user's inputs with them.
+
+        :return: void function
+        """
 
         # Variable used for question since messagebox syntax seems to not work with string compostion.
         self.confirmquestion = "So your bot token is:", self.bot_token, "and your bot prefix is:", self.bot_prefix
@@ -73,16 +93,25 @@ class setup(object):
             messagebox.showinfo("Information", "Okay, running the program again.")
             main()
 
-    # Writes user inputs to config.txt
+
     def configAssign(self):
+        """
+        Writes the user's inputs to a text file to store them for the bot.
+
+        :return: void function
+        """
 
         with open("config.txt", "w") as my_file:
 
             my_file.write(self.bot_token + "\n")
             my_file.write(self.bot_prefix)
 
-    # Appends new changes to confighistory.txt
     def configLogging(self):
+        """
+        Will append new changes to log them.
+
+        :return:  void function
+        """
         with open("confighistory.txt", "a") as my_file:
 
             my_file.write("Date of update:" + str(self.now) + "\n")
@@ -90,16 +119,13 @@ class setup(object):
             my_file.write("Bot Prefix: " + self.bot_prefix + "\n")
             my_file.write("\n")
 
-# Main function.
 
+if __name__ == "__main__":
 
-def main():
-
-    # Initializing variables with useless values
     bot_token = ""
     bot_prefix = ""
 
-    setup_instance = setup(bot_token, bot_prefix)  # Class instance created
+    setup_instance = setup(bot_token, bot_prefix)
 
     setup_instance.askUser()
 
@@ -111,5 +137,3 @@ def main():
 
     setup_instance.configLogging()
 
-
-main()
