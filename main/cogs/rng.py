@@ -1,6 +1,3 @@
-"""Python file that acts as a cog for Akizuki. Defines the cog in a class called rngCog, and contains various commands that involve RNG, or a random number generator.
-
-"""
 # TODO - Implement more commands.
 
 import discord

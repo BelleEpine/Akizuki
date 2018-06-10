@@ -11,6 +11,9 @@ from tkinter import messagebox
 import sys
 import datetime
 
+#If needed, can install discord.py and/or any other dependencies by user request..
+import os
+
 # setup class where most of the work will take place
 
 
@@ -35,6 +38,7 @@ class setup(object):
         self.prefix = bot_prefix
         self.confirmquestion = ""
         self.userconfirmation = ""
+        self.installDependenciesStatus = False
 
         self.now = datetime.datetime.now()
 
@@ -119,6 +123,20 @@ class setup(object):
             my_file.write("Bot Prefix: " + self.bot_prefix + "\n")
             my_file.write("\n")
 
+    def installDependencies(self):
+
+        self.installDependenciesStatus = messagebox.askyesno("Install?", "Would you like to install Discord.py?")
+
+        if self.installDependenciesStatus == True:
+            os.system("pip install discord.py")
+
+        else:
+            messagebox.showinfo("Information", "Okay. Exiting setup. You can manually run the dependencies.py file in the main folder if you would like to install it without going through this again.")
+            return
+            
+
+        
+
 
 if __name__ == "__main__":
 
@@ -136,4 +154,6 @@ if __name__ == "__main__":
     setup_instance.configAssign()
 
     setup_instance.configLogging()
+
+    setup_instance.installDependencies()
 

@@ -43,7 +43,7 @@ with open("config.txt", "r") as my_file:
 client = commands.Bot(command_prefix=bot_prefix)
 
 # Defines the cogs to be loaded when the bot starts up.
-bot_cogs = ["cogs.rng", "cogs.files"]
+bot_cogs = ["cogs.rng", "cogs.files", "cogs.math"]
 
 # Loads all the cogs. What is a cog you may ask? Well, a cog is an extention to a bot that can be used to organize commands, or be shared with others! They're great.
 for cog in bot_cogs:
@@ -60,21 +60,6 @@ async def on_ready():
     print("\nLogged in as")
     print(client.user.name)
     print(client.user.id)
-
-
-# TODO - VERY specific syntax, need to fix that.
-@client.command()
-async def add(number1: int, number2: int):
-    """
-    Simple command to add two numbers.
-
-    :param number1: 1st number to add
-    :param number2:  2nd number to add
-    :return: void function.
-    """
-
-    await client.say(number1 + number2)
-
 
 # TODO - Make usable by bot owner only.
 @client.command()
