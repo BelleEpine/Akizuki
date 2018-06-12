@@ -1,6 +1,7 @@
 import os
 import subprocess
 
+
 def install(package):
     os.system("pip install " + package)
     

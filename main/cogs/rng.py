@@ -4,7 +4,8 @@ import discord
 from discord.ext import commands
 import random
 
-class rngCog:
+
+class RNGCog:
     """RNG Cog that has commands tailored for RNG operations."""
 
     def __init__(self, client):
@@ -18,11 +19,7 @@ class rngCog:
 
     @commands.command()
     async def randomnumber(self):
-        """
-        Uses randint to return a random integer to the user.
-
-        :return: void function.
-        """
+        """Uses randint to return a random integer to the user."""
 
         randominteger = random.randint(1,100)
 
@@ -30,4 +27,4 @@ class rngCog:
 
 
 def setup(client):
-    client.add_cog(rngCog(client))
+    client.add_cog(RNGCog(client))

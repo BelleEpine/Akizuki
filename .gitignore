@@ -1,10 +1,13 @@
+main/cogs/tags/*
+!main/cogs/tags/.gitkeep
+
 config.txt
 
 confighistory.txt
 
-tags.txt
 .idea/
 quest/
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

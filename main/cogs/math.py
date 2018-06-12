@@ -7,7 +7,7 @@ import math
 import re
 
 
-class mathCog:
+class MathCog:
 
     """
         Used for math functions such as adding, subtracting, multiplying, and dividing.
@@ -17,7 +17,6 @@ class mathCog:
 
         """
 
-
     def __init__(self, client):
 
         self.client = client
@@ -25,20 +24,18 @@ class mathCog:
                                                     ([-]?   # Checks for negative number
                                                     [0-9]*  # Integer part of number
                                                     \.?[0-9]+)+ #Decimal part of number
-                                                    ''',re.VERBOSE)
-
+                                                    ''', re.VERBOSE)
 
     @commands.command()
-    async def expression(self, expression : str):
+    async def expression(self, expression: str):
         """
         Uses a parser to solve more complicated equations. With the built in Python one, it's not that good.
 
         :param expression:  The expression to be solved
-        :return:
         """
 
         # Will use parser for more complicated equations.
-        compiledequation = compile(expression,"math.py", "eval")
+        compiledequation = compile(expression, "math.py", "eval")
 
         await self.client.say(eval(compiledequation))
 
@@ -48,7 +45,6 @@ class mathCog:
         Adds numbers.
 
         :param args: Dynamic # of parameters for user to enter and add.
-        :return:
         """
 
         if len(list(args)) == 0:
@@ -73,14 +69,12 @@ class mathCog:
 
         await self.client.say(total)
 
-
     @commands.command()
     async def subtract(self, *args):
         """
         Subtracts numbers.
 
         :param args: Dynamic # of parameters as specified by the user
-        :return:
         """
 
         if len(list(args)) == 0:
@@ -92,7 +86,6 @@ class mathCog:
             regexstring += str(x) + " "
 
         mo = self.simpleRegex.findall(regexstring)
-
 
         for x in mo:
             x.strip()
@@ -110,7 +103,6 @@ class mathCog:
         Multiplies numbers.
 
         :param args: Dynamic # of parameters as the user specifies.
-        :return:
         """
 
         if len(list(args)) == 0:
@@ -131,8 +123,6 @@ class mathCog:
         for x in mo[1:]:
             total *= float(x)
 
-
-
         await self.client.say(total)
 
     @commands.command()
@@ -141,7 +131,6 @@ class mathCog:
         Divides numbers.
 
         :param args: Dynamic # of parameters for the user to pass
-        :return:
         """
 
         if len(list(args)) == 0:
@@ -164,12 +153,6 @@ class mathCog:
 
         await self.client.say(total)
 
+
 def setup(client):
-    client.add_cog(mathCog(client))
-
-
-
-
-
-
-
+    client.add_cog(MathCog(client))
