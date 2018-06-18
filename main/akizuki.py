@@ -21,7 +21,9 @@ Personal Notes:
 """
 
 # Sets up logging in the console.
+
 logging.basicConfig(level=logging.INFO)
+logging.getLogger('googleapicliet.discovery_cache').setLevel(logging.ERROR)
 
 
 # ENTER BOT TOKEN AND PREFIXES HERE (Manual set up)
@@ -45,7 +47,8 @@ with open("config.txt", "r") as my_file:
 client = commands.Bot(command_prefix=bot_prefix)
 
 # Defines the cogs to be loaded when the bot starts up.
-bot_cogs = ["cogs.rng", "cogs.files", "cogs.math", "cogs.users"]
+bot_cogs = ["cogs.rng", "cogs.files", "cogs.math", "cogs.users", "cogs.millionlive.millionlive"]
+
 
 
 @client.event
@@ -62,6 +65,7 @@ async def on_ready():
         client.load_extension(cog)
 
     print("Total of {0} cogs loaded.".format(len(bot_cogs)))
+
 
 
 '''

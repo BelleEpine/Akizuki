@@ -1,6 +1,10 @@
 main/cogs/tags/*
 !main/cogs/tags/.gitkeep
 
+main/cogs/millionlive/*
+!main/cogs/millionlive/.gitkeep
+!main/cogs/millionlive/millionlive.py
+
 config.txt
 
 confighistory.txt
