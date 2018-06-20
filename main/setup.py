@@ -14,19 +14,10 @@ import os
 
 
 class Setup(object):
-    """
-    Class for the setup.
-
-    Will walk the user through the setup, asking them for various inputs to get the bot ready to start running.
-    """
+    """Will walk the user through the setup, asking them for various inputs to get the bot ready to start running."""
 
     def __init__(self, bot_token, bot_prefix):
-        """
-        Initializes variables.
 
-        :param bot_token: The bot token
-        :param bot_prefix: The bot prefix
-        """
         self.window = tk.Tk()
         self.window.withdraw()  # Hides root menu to make it look cleaner.
         self.bot_token = bot_token
@@ -108,10 +99,10 @@ class Setup(object):
     def installdependencies(self):
         """Installs dependencies if needed."""
 
-        self.installDependenciesStatus = messagebox.askyesno("Install?", "Would you like to install Discord.py?")
+        self.installDependenciesStatus = messagebox.askyesno("Install?", "Would you like to install bot dependencies?")
 
         if self.installDependenciesStatus is True:
-            os.system("pip install discord.py")
+            os.system("pip install -Ur requirements.txt")
 
         else:
             messagebox.showinfo("Information", "Okay. Exiting setup. You can manually run the dependencies.py file in the main folder if you would like to install it without going through this again.")

@@ -8,18 +8,10 @@ from discord.ext import commands
 
 
 class FilesCog:
-
-    """
-    Used to define commands that interact with files.
-    Currently, it's focused on tags, allowing for users to make tags, delete them, edit them, get info on them, and list all the tags.
-    """
+    """Used to define commands that interact with files. Currently, it's focused on tags, allowing for users to make tags, delete them, edit them, get info on them, and list all the tags."""
 
     def __init__(self, client):
-        """
-        Initializes everything.
-
-        :param client: The discord client passed to the class to run commands.
-        """
+        """Initializes everything."""
 
         self.client = client
         self.server_id_list = []
@@ -79,9 +71,6 @@ class FilesCog:
             Master command for the tag group of commands.
             Checks for a passed tag name value and subcommand. If a tag name is passed, it will print the tag.
             If a subcommand is passed, then nothing here will run.
-
-            :param ctx: ctx is used for checking stuff such as whether a subcommand is used or not.
-            :param name: Name of the tag to be returned. Can be None assuming the user enters a subcommand.
             """
 
             workingdictionary = None
@@ -103,13 +92,7 @@ class FilesCog:
 
     @tag.command(pass_context=True)
     async def add(self, ctx, name: str, *, contents: str):
-        """
-        Subcommand allowing for the user to add new tags.
-
-        :param ctx: Command context
-        :param name: Name of the tag to be added. Must be one word.
-        :param contents: Contents of the tag to be added. Can be multiple words.
-        """
+        """Subcommand allowing for the user to add new tags."""
 
         workingdictionary = None
 
@@ -123,20 +106,16 @@ class FilesCog:
         if name not in workingdictionary:
             with open("cogs/tags/{0}.txt".format(ctx.message.server.id), "a") as mytags:
                 mytags.write(name + " HELLOTHEREIAMADIVIDER " + contents + " HELLOTHEREIAMADIVIDER " + ctx.message.author.id + " HELLOTHEREIAMADIVIDER " + ctx.message.author.name + "#" + ctx.message.author.discriminator + "\n")
-            workingdictionary[name] = contents
+            workingdictionary[name] = [contents, ctx.message.author.id, "{0}#{1}".format(ctx.message.author.name, ctx.message.author.discriminator)]
+            await self.client.say("Tag with name **{0}** and content **{1}** has been created.".format(name, contents))
         else:
             await self.client.say("This tag already exists! Use the subcommand edit to change existing tags.")
 
-        await self.client.say("Tag with name **{0}** and content **{1}** has been created.".format(name, contents))
+
 
     @tag.command(pass_context=True)
     async def delete(self, ctx, name: str):
-        """
-        Subcommand allowing for the user to delete their tags.
-
-        :param ctx: Command context
-        :param name:  Name of the tag to be deleted.
-        """
+        """Subcommand allowing for the user to delete their tags."""
 
         workingdictionary = None
 
@@ -162,7 +141,7 @@ class FilesCog:
                     currentline = line.rstrip().split(" HELLOTHEREIAMADIVIDER ")
                     # Ensures right tag is being deleted by checking name AND content of the tag
                     # currentline right now is shown as [title , content].
-                    if currentline[0] == name and currentline[1] == workingdictionary[name]:
+                    if currentline[0] == name and currentline[1] == workingdictionary.get(name)[0]:
                         linetodelete = line
                     else:
                         linestokeep.append(line)
@@ -177,14 +156,7 @@ class FilesCog:
 
     @tag.command(pass_context=True)
     async def edit(self, ctx, name: str, *, newcontent: str):
-
-        """
-        Used to edit an existing tag.
-
-        :param ctx: Passes context
-        :param name:  Name of tag to edit
-        :param newcontent:  New content to replace the old content.
-        """
+        """Used to edit an existing tag."""
 
         workingdictionary = None
 
@@ -211,9 +183,11 @@ class FilesCog:
 
                     # Again confirms it's the right tag being changed.
                     # currentline right now is shown as [title , content].
-                    if currentline[0] == name and currentline[1] == workingdictionary[name]:
+                    if currentline[0] == name and currentline[1] == workingdictionary.get(name)[0]:
                         currentline[1] = newcontent
                         currentline.insert(1, " HELLOTHEREIAMADIVIDER ")
+                        currentline.insert(3, " HELLOTHEREIAMADIVIDER ")
+                        currentline.insert(5, " HELLOTHEREIAMADIVIDER ")
 
                         editedline = "".join(currentline)
                     else:
@@ -229,7 +203,7 @@ class FilesCog:
                             mytags.write(line + "\n")
                 mytags.write(editedline)
 
-            workingdictionary[name] = newcontent
+            workingdictionary.get(name)[0] = newcontent
             await self.client.say("Your tag **{0}** has had its contents changed to **{1}**".format(name, newcontent))
 
         else:
@@ -237,7 +211,6 @@ class FilesCog:
 
     @tag.command(pass_context=True)
     async def list(self, ctx):
-
         """Lists all the current tags in a nice embed."""
 
         workingdictionary = None
@@ -271,12 +244,7 @@ class FilesCog:
 
     @tag.command(pass_context=True)
     async def info(self, ctx, name: str):
-        """
-        Provides the user with information about the tag they pass in an embed!
-
-        :param ctx: Command context
-        :param name: Tag that the user will get information about.
-        """
+        """Provides the user with information about the tag they pass in an embed"""
 
         workingdictionary = None
 
@@ -286,6 +254,9 @@ class FilesCog:
                     workingdictionary = value[1]
             except ValueError:
                 continue
+
+        print(workingdictionary)
+        print(workingdictionary.get(name))
 
         if name in workingdictionary:
             infoembed = discord.Embed(color=14434903)

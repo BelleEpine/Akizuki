@@ -5,21 +5,14 @@ import datetime
 
 
 class UserCog:
-    """
-        Cog meant to interact with the user data type in Discord.
-    """
+    """Cog meant to interact with the user data type in Discord. """
 
     def __init__(self, client):
         self.client = client
 
     @commands.command(pass_context=True)
     async def userinfo(self, ctx, member: discord.User = None):
-        """
-        Function meant to return information about a user, or if none is specified, the user who called the command.
-
-        :param ctx: Command context
-        :param member: The member to get information on. Can be none if the parameter is left blank.
-        """
+        """Function meant to return information about a user, or if none is specified, the user who called the command."""
 
         if member is None:
             member = ctx.message.author
@@ -53,11 +46,7 @@ class UserCog:
 
     @commands.command(pass_context=True)
     async def serverinfo(self, ctx):
-        """
-        Returns information on the server the command is called in.
-
-        :param ctx: Command context
-        """
+        """Returns information on the server the command is called in."""
 
         serverinfoembed = discord.Embed(color=14434903)
 
@@ -104,11 +93,7 @@ class UserCog:
 
     @commands.command(pass_context=True)
     async def emojis(self, ctx):
-        """
-        Will return all of the emojis on the server, split into 1-25 and 26-50 to avoid the problem in !serverinfo.
-
-        :param ctx: I'm just going to start leaving this blank. It's a pain.
-        """
+        """Will return all of the emojis on the server, split into 1-25 and 26-50 to avoid the problem in !serverinfo."""
 
         emojistring1 = ""
         for x in ctx.message.server.emojis[0:25]:
@@ -125,11 +110,7 @@ class UserCog:
 
     @commands.command(pass_context=True)
     async def profilepicture(self, ctx, member: discord.User = None):
-        """
-        Returns profile picture of the mentioned user, or the message author themself if none is specified.
-
-        :param member: Member to get the profile picture of
-        """
+        """Returns profile picture of the mentioned user, or the message author themself if none is specified."""
 
         if member is None:
             member = ctx.message.author

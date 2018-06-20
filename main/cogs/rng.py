@@ -9,11 +9,7 @@ class RNGCog:
     """RNG Cog that has commands tailored for RNG operations."""
 
     def __init__(self, client):
-        """
-        Initializes class
-
-        :param client: Discord bot client
-        """
+        """Initializes class"""
         self.client = client
 
 

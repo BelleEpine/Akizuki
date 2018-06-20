@@ -47,13 +47,16 @@ with open("config.txt", "r") as my_file:
 client = commands.Bot(command_prefix=bot_prefix)
 
 # Defines the cogs to be loaded when the bot starts up.
-bot_cogs = ["cogs.rng", "cogs.files", "cogs.math", "cogs.users", "cogs.millionlive.millionlive"]
+bot_cogs = ["cogs.rng", "cogs.files", "cogs.math", "cogs.users", "cogs.action", "cogs.millionlive"]
+loaded_bot_cogs = []
+unloaded_bot_cogs = []
 
 
 
 @client.event
 async def on_ready():
     """Returns info to the console when the bot is up and ready to run."""
+
     print("\nLogged in as")
     print(client.user.name)
     print(client.user.id)
@@ -62,9 +65,16 @@ async def on_ready():
     print("\n")
 
     for cog in bot_cogs:
-        client.load_extension(cog)
+        try:
+            client.load_extension(cog)
+            loaded_bot_cogs.append(cog)
+        except Exception as e:
+            print("Error loading module {0}. - {1}".format(cog,e))
 
     print("Total of {0} cogs loaded.".format(len(bot_cogs)))
+
+    await client.change_presence(game=Game(name="{0}help | with DesDiv 61".format(bot_prefix)))
+
 
 
 
@@ -84,14 +94,9 @@ async def test(ctx):
     await client.logout()
     '''
 
-
-@client.command(pass_context=True)
+@client.command(pass_context=True, hidden=True)
 async def shutdown(ctx):
-    """
-    Shuts the bot down.
-
-    :param ctx: Passes command context.
-    """
+    """Shuts the bot down."""
 
     if ctx.message.author.id == ownerid:
         await client.say("Roger that. Shutting down.")
@@ -101,15 +106,10 @@ async def shutdown(ctx):
 
 
 # TODO - Other statuses like streaming? Set away/do not disturb/etc.
-@client.command(pass_context=True)
+@client.command(pass_context=True, hidden=True)
 async def changepresence(ctx, status: str, *, gamename: str):
-    """
-    Allows for the user to change the bot's "Playing: " status to whatever they choose, as well as the online/idle/dnd status.
-    *, will invoke "consume rest" behavior and allow for strings with spaces in them to be used.
-
-    :param ctx: Passes command context.
-    :param status: Status to set the bot to.
-    :param gamename: Name of a game to set the bot's status as "playing".
+    """Allows for the user to change the bot's "Playing: " status to whatever they choose, as well as the online/idle/dnd status.
+*, will invoke "consume rest" behavior and allow for strings with spaces in them to be used.
     """
     if ctx.message.author.id == ownerid:
         await client.change_presence(game=Game(name=gamename), status=status)
@@ -124,7 +124,7 @@ async def info():
 
     # NEED TO USE RGB INT INSTEAD OF HEX
     infoembed = discord.Embed(
-        description="Bot information. Click here for [GitHub Repository](https://github.com/BelleEpine/Akizuki).", color=14434903)
+        description="Bot information. [GitHub Repository](https://github.com/BelleEpine/Akizuki).", color=14434903)
 
     infoembed.title = "Akizuki"
 
@@ -140,26 +140,81 @@ async def info():
 @client.command()
 async def cogs():
 
-    cogstring = ""
-    for x in bot_cogs:
-        cogstring += x[5:] + "\n"
+    loaded_cogstring = ""
+    for x in loaded_bot_cogs:
+        loaded_cogstring += x[5:] + "\n"
+
+    unloaded_cogstring = ""
+    for x in unloaded_bot_cogs:
+        unloaded_cogstring += x[5:] + "\n"
+
+    if unloaded_cogstring == "":
+        unloaded_cogstring = "Nothing!"
 
     cogembed = discord.Embed(color=14434903)
 
     cogembed.set_footer(text="To get more info, do " + bot_prefix + "help [COGNAME]Cog.")
 
-    cogembed.add_field(name="List of cogs:", value=cogstring)
+    cogembed.add_field(name="List of loaded cogs:", value=loaded_cogstring)
+
+    cogembed.add_field(name="List of unloaded cogs:", value=unloaded_cogstring)
 
     await client.say(embed=cogembed)
 
 
+@client.command(pass_context=True, hidden=True)
+async def unloadcog(ctx, cog: str):
+
+    if ctx.message.author.id == ownerid:
+        try:
+            client.unload_extension("cogs.{0}".format(cog))
+            loaded_bot_cogs.pop(loaded_bot_cogs.index("cogs.{0}".format(cog)))
+            unloaded_bot_cogs.append("cogs.{0}".format(cog))
+
+            await client.say("The {0} cog has been unloaded.".format(cog))
+
+        except Exception as e:
+            print(e)
+            await client.say("An error has occured: {0}".format(e))
+    else:
+        await client.say("Sorry, you don't have sufficient permissions to use this command!")
+
+
+@client.command(pass_context=True, hidden=True)
+async def loadcog(ctx, cog: str):
+
+    if ctx.message.author.id == ownerid:
+        try:
+            client.load_extension("cogs.{0}".format(cog))
+            unloaded_bot_cogs.pop(unloaded_bot_cogs.index("cogs.{0}".format(cog)))
+            loaded_bot_cogs.append("cogs.{0}".format(cog))
+
+            await client.say("The {0} cog has been loaded.".format(cog))
+        except Exception as e:
+            print(e)
+            await client.say("An error has occured: {0}".format(e))
+    else:
+        await client.say("Sorry, you don't have sufficient permissions to use this command!")
+
+
+@client.command(pass_context=True, hidden=True)
+async def reloadcog(ctx, cog: str):
+
+    if ctx.message.author.id == ownerid:
+        try:
+            client.unload_extension("cogs.{0}".format(cog))
+            client.load_extension("cogs.{0}".format(cog))
+            await client.say("The {0} cog has been reloaded.".format(cog))
+        except Exception as e:
+            print(e)
+    else:
+        await client.say("Sorry, you don't have sufficient permissions to use this command!")
+
+
 @client.command(pass_context=True)
 async def ping(ctx):
-    """
-    Determines the bot's ping.
+    """Determines the bot's ping."""
 
-    :param ctx: Passes command context
-    """
     resp = await client.say('Pong! Loading...')
     diff = resp.timestamp - ctx.message.timestamp
     await client.edit_message(resp, f'Pong! That took {1000*diff.total_seconds():.1f}ms.')
@@ -184,11 +239,8 @@ async def ping(ctx):
 # TODO I don't know. Just make it better I guess. Currently turned off.
 @client.event
 async def on_message_delete(message):
-    """
-    Will print deleted messages to the console.
+    """Will print deleted messages to the console."""
 
-    :param message: Message automatically passed to the function by the client.event
-    """
     return  # Turned off for now.
 
     print("Deleted message: ", message.content)
@@ -197,11 +249,7 @@ async def on_message_delete(message):
 
 @client.event
 async def on_message(message):
-    """
-    Will make sure that the bot does not work in DMs, and cannot ping @everyone by accident.
-
-    :param message: Message passed to the event call
-    """
+    """Will make sure that the bot does not work in DMs, and cannot ping @everyone by accident."""
 
     if message.server is None:
         return
@@ -210,5 +258,6 @@ async def on_message(message):
         return
 
     await client.process_commands(message)
+
 
 client.run(bot_token)

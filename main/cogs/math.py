@@ -8,14 +8,12 @@ import re
 
 
 class MathCog:
-
     """
         Used for math functions such as adding, subtracting, multiplying, and dividing.
         Uses regexes for more friendly interaction.
         I currently have an expression command utilizing Python's built in parser, but doesn't work too well currently.
         It has quite a few problems, like interacting with negative numbers will mess up sometimes. I'll have to look into that.
-
-        """
+    """
 
     def __init__(self, client):
 
@@ -28,11 +26,7 @@ class MathCog:
 
     @commands.command()
     async def expression(self, expression: str):
-        """
-        Uses a parser to solve more complicated equations. With the built in Python one, it's not that good.
-
-        :param expression:  The expression to be solved
-        """
+        """Uses a parser to solve more complicated equations. With the built in Python one, it's not that good."""
 
         # Will use parser for more complicated equations.
         compiledequation = compile(expression, "math.py", "eval")
@@ -41,11 +35,7 @@ class MathCog:
 
     @commands.command()
     async def add(self, *args):
-        """
-        Adds numbers.
-
-        :param args: Dynamic # of parameters for user to enter and add.
-        """
+        """Adds numbers."""
 
         if len(list(args)) == 0:
             await self.client.say("0")
@@ -71,11 +61,7 @@ class MathCog:
 
     @commands.command()
     async def subtract(self, *args):
-        """
-        Subtracts numbers.
-
-        :param args: Dynamic # of parameters as specified by the user
-        """
+        """Subtracts numbers."""
 
         if len(list(args)) == 0:
             await self.client.say("0")
@@ -99,11 +85,7 @@ class MathCog:
 
     @commands.command()
     async def multiply(self, *args):
-        """
-        Multiplies numbers.
-
-        :param args: Dynamic # of parameters as the user specifies.
-        """
+        """Multiplies numbers."""
 
         if len(list(args)) == 0:
             await self.client.say("0")
@@ -127,11 +109,7 @@ class MathCog:
 
     @commands.command()
     async def divide(self, *args):
-        """
-        Divides numbers.
-
-        :param args: Dynamic # of parameters for the user to pass
-        """
+        """Divides numbers."""
 
         if len(list(args)) == 0:
             await self.client.say("0")
