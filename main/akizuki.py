@@ -14,6 +14,7 @@ from discord import Game
 from discord.ext import commands
 
 import os
+import json
 
 """
 Personal Notes:
@@ -34,14 +35,17 @@ bot_prefix = ""
 ownerid = ""
 
 # Obtains bot token and prefix from the config file. TODO - Can and will be expanded to include the bot owner's ID and more if needed.
-with open("config.txt", "r") as my_file:
+with open("config.json", "r") as my_file:
 
-    if os.stat("config.txt").st_size == 0:  # Will not use file if empty
+    try:
+        data = json.load(my_file)
+        bot_token = data["Bot Token"]
+        bot_prefix = data["Bot Prefix"]
+        ownerid = data["Owner ID"]
+
+    except Exception as e:
+        print("An error has occured. {0}".format(e))
         my_file.close()
-    else:
-        bot_token = my_file.readline().strip()
-        bot_prefix = my_file.readline().strip()
-        ownerid = my_file.readline().strip()
 
 # Creates client object to interact with the API
 client = commands.Bot(command_prefix=bot_prefix)
@@ -50,7 +54,6 @@ client = commands.Bot(command_prefix=bot_prefix)
 bot_cogs = ["cogs.rng", "cogs.files", "cogs.math", "cogs.users", "cogs.action", "cogs.millionlive"]
 loaded_bot_cogs = []
 unloaded_bot_cogs = []
-
 
 
 @client.event

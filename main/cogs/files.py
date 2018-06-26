@@ -5,7 +5,7 @@
 
 import discord
 from discord.ext import commands
-
+import json
 
 class FilesCog:
     """Used to define commands that interact with files. Currently, it's focused on tags, allowing for users to make tags, delete them, edit them, get info on them, and list all the tags."""

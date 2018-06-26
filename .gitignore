@@ -10,6 +10,7 @@ config.txt
 confighistory.txt
 
 .idea/
+*.json
 quest/
 
 
