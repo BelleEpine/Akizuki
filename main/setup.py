@@ -6,12 +6,8 @@ from tkinter import messagebox
 
 import sys
 import datetime
-
-# If needed, can install discord.py and/or any other dependencies by user request..
 import os
-
-# setup class where most of the work will take place
-
+import json
 
 class Setup(object):
     """Will walk the user through the setup, asking them for various inputs to get the bot ready to start running."""
@@ -79,16 +75,15 @@ class Setup(object):
     def configassign(self):
         """Writes the user's inputs to a text file to store them for the bot."""
 
-        with open("config.txt", "w") as my_file:
+        data = {"Bot Token": self.bot_token, "Bot Prefix": self.bot_prefix, "Owner ID": self.ownerid}
 
-            my_file.write(self.bot_token + "\n")
-            my_file.write(self.bot_prefix + "\n")
-            my_file.write(self.ownerid + "\n")
+        with open("config.json", "w") as my_file:
+            json.dump(data, my_file, indent=2)
 
     def configlogging(self):
         """Will append new changes to log them."""
 
-        with open("confighistory.txt", "a") as my_file:
+        with open("confighistory.txt", "w") as my_file:
 
             my_file.write("Date of update:" + str(self.now) + "\n")
             my_file.write("Bot Token: " + self.bot_token + "\n")

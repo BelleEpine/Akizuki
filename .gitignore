@@ -10,7 +10,7 @@ config.txt
 confighistory.txt
 
 .idea/
-quest/
+*.json
 
 
 # Byte-compiled / optimized / DLL files

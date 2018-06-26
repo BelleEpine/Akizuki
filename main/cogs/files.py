@@ -5,7 +5,7 @@
 
 import discord
 from discord.ext import commands
-
+import json
 
 class FilesCog:
     """Used to define commands that interact with files. Currently, it's focused on tags, allowing for users to make tags, delete them, edit them, get info on them, and list all the tags."""
@@ -14,6 +14,17 @@ class FilesCog:
         """Initializes everything."""
 
         self.client = client
+
+        with open("config.json", "r") as my_file:
+
+            try:
+                data = json.load(my_file)
+                self.ownerid = data["Owner ID"]
+
+            except Exception as e:
+                print("An error has occured. {0}".format(e))
+                my_file.close()
+
         self.server_id_list = []
 
         # Gathers all the servers the bot is in to create a dictionary out of the string values.
@@ -21,47 +32,28 @@ class FilesCog:
 
             self.server_id_list.append(server.id)
 
-        self.untouched_server_id = []
-
-        # A bit confusing, so bear with me. I want a nested list with the first value being the server ID, and the second being the server's tags.
-        # This is so I can search ctx for the server id and then see if it's in any of the nested lists. If it is, I'll use that tag list for that server.
-        for server in self.client.servers:
-            self.untouched_server_id.append(server.id)
-
         self.tagdicts = []
 
-        # Gets ownerid if needed in the future.
-        self.ownerid = ""
-
-        with open("{0}/config.txt".format("."), "r") as myconfig:
-            myconfig.readline()
-            myconfig.readline()
-            self.ownerid = myconfig.readline().strip()
-
-        # personal note: Since cog is loaded in akizuki.py which is a directory down, tags.txt is not in that directory and will not load. So, must specify the directory.
-        # Tag storing format: title, content, creatorID, creatorUsername+Discriminator
-        counter = 0
-        for x in self.server_id_list:
+        for server in self.client.servers:
             try:
-                with open("cogs/tags/{0}.txt".format(x), "r") as mytags:
-                    x = {}
-                    for line in mytags:
-                        currentline = line.rstrip().split(" HELLOTHEREIAMADIVIDER ")    # This is how the tags are stored. The giant divider is meant to prevent the .split() from unintentionally messing stuff up,
-                        x[currentline[0]] = [currentline[1], currentline[2], currentline[3]]
-                    self.tagdicts.append([self.untouched_server_id[counter], x])
-                    counter += 1
+                with open("cogs/tags/{0}.json".format(server.id), "r") as mytags:
+                    try:
+                        data = json.load(mytags)
+                    except ValueError:
+                        data = {}
+                    self.tagdicts.append( {server.id: data} )
 
             except FileNotFoundError:
-                with open("cogs/tags/{0}.txt".format(x), "a+") as mytags:
-                    print("New tags.txt file created:" + x)
-                    x = {}
-                    try:
-                        self.tagdicts.append([self.untouched_server_id[counter], x])
-                        counter += 1
-                    except IndexError:
-                        continue
+                with open("cogs/tags/{0}.json".format(server.id), "a+") as mytags:
+                    print("New tags file created: {0}".format(server.id))
+                    self.tagdicts.append( {server.id: None} )
+
+            except Exception as e:
+                print("An error has occured. {0}".format(e))
+                continue
 
         print("Total of {0} tag dictionaries loaded.".format(len(self.server_id_list)), self.server_id_list)
+        print(self.ownerid)
 
     # pass_context allows for ctx to be used in functions
     # invoke_without_command allows for the tag command to be called by itself and not call itself when other subcommands are called.
@@ -74,21 +66,17 @@ class FilesCog:
             """
 
             workingdictionary = None
-            # Searches the aforementioned nested lists for the ctx server. If it's there, it'll use that server as the current working dictionary.
             for counter, value in enumerate(self.tagdicts):
-                try:
-                    if ctx.message.server.id in value:
-                        workingdictionary = value[1]
-                except ValueError:
-                    continue
+                if ctx.message.server.id in value:
+                    workingdictionary = value
+                    workingid = ctx.message.server.id
 
             if ctx.invoked_subcommand is None:
-                contentstring = workingdictionary.get(name)[0]
 
-                if contentstring is not None:
-                    await self.client.say(contentstring)
-                else:
-                    await self.client.say("That tag does not exist!")
+                try:
+                    await self.client.say(workingdictionary[workingid][name]["content"])
+                except KeyError:
+                    print("That tag does not exist!")
 
     @tag.command(pass_context=True)
     async def add(self, ctx, name: str, *, contents: str):
@@ -97,21 +85,28 @@ class FilesCog:
         workingdictionary = None
 
         for counter, value in enumerate(self.tagdicts):
-            try:
-                if ctx.message.server.id in value:
-                    workingdictionary = value[1]
-            except ValueError:
-                continue
+            if ctx.message.server.id in value:
+                workingdictionary = value
+                workingid = ctx.message.server.id
 
-        if name not in workingdictionary:
-            with open("cogs/tags/{0}.txt".format(ctx.message.server.id), "a") as mytags:
-                mytags.write(name + " HELLOTHEREIAMADIVIDER " + contents + " HELLOTHEREIAMADIVIDER " + ctx.message.author.id + " HELLOTHEREIAMADIVIDER " + ctx.message.author.name + "#" + ctx.message.author.discriminator + "\n")
-            workingdictionary[name] = [contents, ctx.message.author.id, "{0}#{1}".format(ctx.message.author.name, ctx.message.author.discriminator)]
-            await self.client.say("Tag with name **{0}** and content **{1}** has been created.".format(name, contents))
-        else:
-            await self.client.say("This tag already exists! Use the subcommand edit to change existing tags.")
+        if name not in workingdictionary[workingid]:
+            with open("cogs/tags/{0}.json".format(ctx.message.server.id)) as mytags:
+                try:
+                    data = json.load(mytags)
+                except ValueError:
+                    data = {}
+                except Exception as e:
+                    print("An error has occurred - {0}".format(e))
 
+            newtag = {name: {"content": contents, "authorid": ctx.message.author.id, "authorname": "{0}#{1}".format(ctx.message.author.name, ctx.message.author.discriminator)}}
+            data.update(newtag)
 
+        with open("cogs/tags/{0}.json".format(ctx.message.server.id), "w") as mytags:
+            json.dump(data, mytags, indent=2)
+
+        workingdictionary[workingid][name] = {"content": contents, "authorid": ctx.message.author.id, "authorname": "{0}#{1}".format(ctx.message.author.name, ctx.message.author.discriminator)}
+
+        await self.client.say("Tag with name **{0}** and content **{1}** has been created.".format(name, contents))
 
     @tag.command(pass_context=True)
     async def delete(self, ctx, name: str):
@@ -120,39 +115,31 @@ class FilesCog:
         workingdictionary = None
 
         for counter, value in enumerate(self.tagdicts):
-            try:
-                if ctx.message.server.id in value:
-                    workingdictionary = value[1]
-            except ValueError:
-                continue
+            if ctx.message.server.id in value:
+                workingdictionary = value
+                workingid = ctx.message.server.id
 
-        if ctx.message.author.id != workingdictionary[name][1] or ctx.message.author.id != self.ownerid:
-            await self.client.say("Sorry, you don't have sufficient permissions to use this command! Only the owner, **{0}** can.".format(workingdictionary.get(name)[2]))
+        if ctx.message.author.id != workingdictionary[workingid][name]["authorid"] or ctx.message.author.id != self.ownerid:
+            await self.client.say("Sorry, you don't have sufficient permissions to use this command! Only the owner, **{0}** can.".format(workingdictionary[workingid][name]["authorname"]))
             return
 
-        linetodelete = ""
-        linestokeep = []
+        try:
+            with open("cogs/tags/{0}.json".format(ctx.message.server.id)) as mytags:
+                try:
+                    data = json.load(mytags)
+                except ValueError:
+                    data = {}
 
-        if name in workingdictionary:
+            data.pop(name, None)
 
-            with open("cogs/tags/{0}.txt".format(ctx.message.server.id), "r+") as mytags:
+            with open("cogs/tags/{0}.json".format(ctx.message.server.id), "w") as mytags:
+                json.dump(data, mytags, indent=2)
 
-                for line in mytags:
-                    currentline = line.rstrip().split(" HELLOTHEREIAMADIVIDER ")
-                    # Ensures right tag is being deleted by checking name AND content of the tag
-                    # currentline right now is shown as [title , content].
-                    if currentline[0] == name and currentline[1] == workingdictionary.get(name)[0]:
-                        linetodelete = line
-                    else:
-                        linestokeep.append(line)
-
-            with open("cogs/tags/{0}.txt".format(ctx.message.server.id), "w") as mytags:
-                for line in linestokeep:
-                    if line != linetodelete:
-                        mytags.write(line)
-
-            workingdictionary.pop(name)
+            workingdictionary[workingid].pop(name, None)
             await self.client.say("Your tag **{0}** has been deleted.".format(name))
+
+        except KeyError:
+            await self.client.say("That tag does not exist!")
 
     @tag.command(pass_context=True)
     async def edit(self, ctx, name: str, *, newcontent: str):
@@ -161,52 +148,32 @@ class FilesCog:
         workingdictionary = None
 
         for counter, value in enumerate(self.tagdicts):
-            try:
-                if ctx.message.server.id in value:
-                    workingdictionary = value[1]
-            except ValueError:
-                continue
+            if ctx.message.server.id in value:
+                workingdictionary = value
+                workingid = ctx.message.server.id
 
-        if ctx.message.author.id != workingdictionary[name][1] or ctx.message.author.id != self.ownerid:
-            await self.client.say("Sorry, you don't have sufficient permissions to use this command! Only the owner, **{0}** can.".format(workingdictionary.get(name)[2]))
+        if ctx.message.author.id != workingdictionary[workingid][name]["authorid"] or ctx.message.author.id != self.ownerid:
+            await self.client.say("Sorry, you don't have sufficient permissions to use this command! Only the owner, **{0}** can.".format(workingdictionary[workingid][name]["authorname"]))
             return
 
-        editedline = ""
-        unchangedlines = []
+        try:
 
-        if name in workingdictionary:
+            with open("cogs/tags/{0}.json".format(ctx.message.server.id)) as mytags:
+                try:
+                    data = json.load(mytags)
+                except ValueError:
+                    data = {}
 
-            with open("cogs/tags/{0}.txt".format(ctx.message.server.id), "r") as mytags:
+            data[name]["content"] = newcontent
 
-                for line in mytags:
-                    currentline = line.rstrip().split(" HELLOTHEREIAMADIVIDER ")
+            with open("cogs/tags/{0}.json".format(ctx.message.server.id), "w") as mytags:
+                json.dump(data, mytags, indent=2)
 
-                    # Again confirms it's the right tag being changed.
-                    # currentline right now is shown as [title , content].
-                    if currentline[0] == name and currentline[1] == workingdictionary.get(name)[0]:
-                        currentline[1] = newcontent
-                        currentline.insert(1, " HELLOTHEREIAMADIVIDER ")
-                        currentline.insert(3, " HELLOTHEREIAMADIVIDER ")
-                        currentline.insert(5, " HELLOTHEREIAMADIVIDER ")
+            workingdictionary[workingid][name]["content"] = newcontent
 
-                        editedline = "".join(currentline)
-                    else:
-                        unchangedlines.append(line)
-
-            with open("cogs/tags/{0}.txt".format(ctx.message.server.id), "w") as mytags:
-
-                for line in unchangedlines:
-                    if line != editedline:
-                        if "\n" in line:  # In case one of the tags doesn't have a newline on it, to prevent it from being bunched up on a single line.
-                            mytags.write(line)
-                        else:
-                            mytags.write(line + "\n")
-                mytags.write(editedline)
-
-            workingdictionary.get(name)[0] = newcontent
             await self.client.say("Your tag **{0}** has had its contents changed to **{1}**".format(name, newcontent))
 
-        else:
+        except KeyError:
             await self.client.say("That tag does not exist!")
 
     @tag.command(pass_context=True)
@@ -216,19 +183,17 @@ class FilesCog:
         workingdictionary = None
 
         for counter, value in enumerate(self.tagdicts):
-            try:
-                if ctx.message.server.id in value:
-                    workingdictionary = value[1]
-            except ValueError:
-                continue
+            if ctx.message.server.id in value:
+                workingdictionary = value
+                workingid = ctx.message.server.id
 
         # Basically, a giant string will be sent in the embed.
         keystring = ""
 
-        if len(workingdictionary) == 0:
+        if len(workingdictionary[workingid]) == 0:
             keystring = "No tags currently exist!"
         else:
-            for key in workingdictionary:
+            for key in workingdictionary[workingid]:
                 keystring += key
                 keystring += "\n"
 
@@ -249,27 +214,23 @@ class FilesCog:
         workingdictionary = None
 
         for counter, value in enumerate(self.tagdicts):
-            try:
-                if ctx.message.server.id in value:
-                    workingdictionary = value[1]
-            except ValueError:
-                continue
+            if ctx.message.server.id in value:
+                workingdictionary = value
+                workingid = ctx.message.server.id
 
-        print(workingdictionary)
-        print(workingdictionary.get(name))
+        try:
+            if name in workingdictionary[workingid]:
+                infoembed = discord.Embed(color=14434903)
 
-        if name in workingdictionary:
-            infoembed = discord.Embed(color=14434903)
+                infoembed.title = "Information for tag: **{0}**".format(name)
 
-            infoembed.title = "Information for tag: **{0}**".format(name)
+                infoembed.add_field(name="**Tag:**", value=name)
+                infoembed.add_field(name="**Contents:**", value=workingdictionary[workingid][name]["content"], inline=False)
+                infoembed.add_field(name="**Author:**", value=workingdictionary[workingid][name]["authorname"])
 
-            infoembed.add_field(name="**Tag:**", value=name)
-            infoembed.add_field(name="**Contents:**", value=workingdictionary.get(name)[0], inline=False)
-            infoembed.add_field(name="**Author:**", value=workingdictionary.get(name)[2])
+                await self.client.say(embed=infoembed)
 
-            await self.client.say(embed=infoembed)
-
-        else:
+        except KeyError:
             await self.client.say("That tag does not exist!")
 
 
