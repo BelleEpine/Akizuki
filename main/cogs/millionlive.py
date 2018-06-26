@@ -1,4 +1,7 @@
-"""Cog for a server I own. :)"""
+"""Cog for a server I own. :)
+
+Disabled for master build.
+'"""
 
 from __future__ import print_function
 from apiclient.discovery import build
@@ -20,6 +23,7 @@ from collections import Counter
 
 class millionCog():
 
+    '''
     # Setup the Calendar API
     SCOPES = 'https://www.googleapis.com/auth/calendar.readonly'
     store = file.Storage("cogs/millionlive/credentials.json")
@@ -175,6 +179,7 @@ class millionCog():
                     print("The event has not started yet.")
                 elif self.target_jp_start <= timenow_jp:
                     print("The event has already started.")
+                    # TODO - Change server picture, channel names. Distinguish between seiyuu & characters. Need good way to get and store nicknames/channel names/pictures w/ least amount of work preferrably
 
                 if timenow >= self.target_hawaii_end:
                     print("It is past the event end time.")
@@ -209,10 +214,7 @@ class millionCog():
     for x in trackedevents:
         print(x.fullname)
 
-
-
-
-
+    '''
 
     def __init__(self,client):
         self.client = client
