@@ -13,7 +13,6 @@ import discord
 from discord import Game
 from discord.ext import commands
 
-import os
 import json
 
 """
@@ -72,7 +71,7 @@ async def on_ready():
             client.load_extension(cog)
             loaded_bot_cogs.append(cog)
         except Exception as e:
-            print("Error loading module {0}. - {1}".format(cog,e))
+            print("Error loading module {0}. - {1}".format(cog, e))
 
     print("Total of {0} cogs loaded.".format(len(bot_cogs)))
 
@@ -96,6 +95,7 @@ async def test(ctx):
 
     await client.logout()
     '''
+
 
 @client.command(pass_context=True, hidden=True)
 async def shutdown(ctx):
