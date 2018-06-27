@@ -6,19 +6,20 @@ Written as a personal project, this is my first foray into something as advanced
 
 * Discord.py
 * Python 3.0+
+* **Check main/requirements.txt for specifics.**
 
 # Setup
 
 * Install dependencies 
-* Enter the bin folder and run setup.bat
+* Run *setup.bat*
 * When prompted, enter the bot token and prefix you would like to use.
-* Run the runbot.bat file in the main directory. **If you have not run setup.bat, the bot WILL NOT RUN.**
+* Run the *runbot.bat* file in the main directory. **If you have not run setup.bat, the bot WILL NOT RUN.**
 
 **Or, manual set up:**
 
 * Install dependencies
-* In \Akizuki\Akizuki\config.py , enter the bot token and prefix you would like to use, **OR** into config.txt with the token first and prefix separated by a line.
-* Either run runbot.bat or manually run \Akizuki\Akizuki\Akizuki.py on the command line.
+* In akizuki.py, enter your credentials.
+* Either run runbot.bat or manually run akizuki.py on the command line.
 
 # Etc.
 
