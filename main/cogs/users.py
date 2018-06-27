@@ -3,6 +3,8 @@ from discord.ext import commands
 
 import datetime
 
+"""Personal note:  these are the limits for embeds: Number of fields = 25, field name = 256, value = 1024, description = 2048"""
+
 
 class UserCog:
     """Cog meant to interact with the user data type in Discord. """
@@ -23,8 +25,16 @@ class UserCog:
 
         userinfoembed.set_thumbnail(url=member.avatar_url)
 
-        userroles = ""
+        role_list = []
         for x in member.roles:
+            role_list.append(x)
+
+        for x in role_list:
+            if x.is_everyone:
+                role_list.pop(role_list.index(x))
+
+        userroles = ""
+        for x in role_list:
             userroles += x.name + "\n"
 
         # Personal note: inline defaults to true, if set to false will put the field on a separate line.
@@ -61,11 +71,19 @@ class UserCog:
 
         # Only prints up to 20, causes errors if too many roles or emojis.
         emojistring = ""
-        for x in ctx.message.server.emojis[0:20]:
+        for x in ctx.message.server.emojis[0:10]:
             emojistring += x.name + ": " + str(x) + "\n"
 
+        role_list = []
+        for x in ctx.message.server.roles[0:11]:
+            role_list.append(x)
+
+        for x in role_list:
+            if x.is_everyone:
+                role_list.pop(role_list.index(x))
+
         rolestring = ""
-        for x in ctx.message.server.roles[0:20]:
+        for x in role_list:
             rolestring += x.name + "\n"
 
         serverinfoembed.set_author(name="Server: {0}".format(ctx.message.server.name), icon_url=ctx.message.server.icon_url)
@@ -84,8 +102,8 @@ class UserCog:
         serverinfoembed.add_field(name="**Channels (Voice/Text)**", value="{0}/{1}".format(voicechannels, textchannels))
         serverinfoembed.add_field(name="**Member Count:**", value=str(len(ctx.message.server.members)))
 
-        serverinfoembed.add_field(name="**Roles({0}) (This may not be the full list!):**".format(len(ctx.message.server.roles)), value=rolestring)
-        serverinfoembed.add_field(name="**Emojis({0}) (This may not be the full list! Use the command !emojis to see all of them!):**".format(len(ctx.message.server.emojis)), value=emojistring)
+        serverinfoembed.add_field(name="**Roles({0}) (This list only contains the first 10! Use the roles command to see all of them.):**".format(len(ctx.message.server.roles)), value=rolestring)
+        serverinfoembed.add_field(name="**Emojis({0}) (This list only contains the first 10! Use the emojis command to see all of them.):**".format(len(ctx.message.server.emojis)), value=emojistring)
 
         serverinfoembed.set_footer(text=datetime.datetime.now().strftime("Generated on: %Y-%m-%d, At: %H:%M:%S%Z"))
 
@@ -93,20 +111,75 @@ class UserCog:
 
     @commands.command(pass_context=True)
     async def emojis(self, ctx):
-        """Will return all of the emojis on the server, split into 1-25 and 26-50 to avoid the problem in !serverinfo."""
+        """Will return all of the emojis on the server, split into 1-25 and 26-50 to avoid hitting the character limit."""
 
         emojistring1 = ""
         for x in ctx.message.server.emojis[0:25]:
-            emojistring1 += x.name + " : " + str(x) + "\n"
+            emojistring1 += x.name + " " + str(x) + "\n"
 
         emojistring2 = ""
-        for x in ctx.message.server.emojis[25:]:
-            emojistring2 += x.name + ": " + str(x) + "\n"
+        for x in ctx.message.server.emojis[25:50]:
+            emojistring2 += x.name + " " + str(x) + "\n"
+
+        emojistring3 = ""
+        for x in ctx.message.server.emojis[50:75]:
+            emojistring3 += x.name + " " + str(x) + "\n"
+
+        emojistring4 = ""
+        for x in ctx.message.server.emojis[75:]:
+            emojistring4 = x.name + " " + str(x) + "\n"
+
+        if emojistring1 is "" and emojistring2 is "":
+            await self.client.say("No emojis currently exist on the server!")
 
         if emojistring1 is not "":
-            await self.client.say("**Emojis 1-25:**" + "\n" + emojistring1)
+            await self.client.say("**Emojis 1-25:**\n{0}".format(emojistring1))
         if emojistring2 is not "":
-            await self.client.say("**Emojis 26-50:**" + "\n" + emojistring2)
+            await self.client.say("**Emojis 25-50:**\n{0}".format(emojistring2))
+        if emojistring3 is not "":
+            await self.client.say("**Emojis 50-75:**\n{0}".format(emojistring3))
+        if emojistring4 is not "":
+            await self.client.say("**Emojis 75-100:**\n{0}".format(emojistring4))
+        elif emojistring1 is "":
+            await self.client.say("No emojis currently exist on the server!")
+
+    @commands.command(pass_context=True)
+    async def roles(self, ctx):
+        role_list = []
+
+        for x in ctx.message.server.roles:
+            role_list.append(x)
+
+        for x in role_list:
+            if x.is_everyone:
+                role_list.pop(role_list.index(x))
+
+        rolestring = ""
+        for role in role_list[0:25]:
+            rolestring += role.name + "\n"
+
+        rolestring2 = ""
+        for role in role_list[25:50]:
+            rolestring2 += role.name + "\n"
+
+        rolestring3 = ""
+        for role in role_list[50:75]:
+            rolestring3 += role.name + "\n"
+
+        rolestring4 = ""
+        for role in role_list[75:100]:
+            rolestring4 += role.name + "\n"
+
+        if rolestring is not "":
+            await self.client.say("**Roles 1-25:**\n{0}".format(rolestring))
+        if rolestring2 is not "":
+            await self.client.say("**Roles 25-50:**\n{0}".format(rolestring2))
+        if rolestring3 is not "":
+            await self.client.say("**Roles 50-75:**\n{0}".format(rolestring3))
+        if rolestring4 is not "":
+            await self.client.say("**Roles 75-100:**\n{0}".format(rolestring4))
+        if rolestring is "":
+            await self.client.say("There are currently no roles on this server!")
 
     @commands.command(pass_context=True)
     async def profilepicture(self, ctx, member: discord.User = None):
