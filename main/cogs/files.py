@@ -5,6 +5,7 @@
 
 import discord
 from discord.ext import commands
+from discord import Client
 import json
 
 class FilesCog:
@@ -53,7 +54,6 @@ class FilesCog:
                 continue
 
         print("Total of {0} tag dictionaries loaded.".format(len(self.server_id_list)), self.server_id_list)
-        print(self.ownerid)
 
     # pass_context allows for ctx to be used in functions
     # invoke_without_command allows for the tag command to be called by itself and not call itself when other subcommands are called.
@@ -89,7 +89,14 @@ class FilesCog:
                 workingdictionary = value
                 workingid = ctx.message.server.id
 
-        if name not in workingdictionary[workingid]:
+        if workingdictionary[workingid] is None:
+            data = {}
+            workingdictionary[workingid] = {}
+
+            newtag = {name: {"content": contents, "authorid": ctx.message.author.id,"authorname": "{0}#{1}".format(ctx.message.author.name, ctx.message.author.discriminator)}}
+            data.update(newtag)
+
+        elif name not in workingdictionary[workingid]:
             with open("cogs/tags/{0}.json".format(ctx.message.server.id)) as mytags:
                 try:
                     data = json.load(mytags)
@@ -119,9 +126,12 @@ class FilesCog:
                 workingdictionary = value
                 workingid = ctx.message.server.id
 
-        if ctx.message.author.id != workingdictionary[workingid][name]["authorid"] or ctx.message.author.id != self.ownerid:
-            await self.client.say("Sorry, you don't have sufficient permissions to use this command! Only the owner, **{0}** can.".format(workingdictionary[workingid][name]["authorname"]))
-            return
+        if ctx.message.author.id != workingdictionary[workingid][name]["authorid"]:
+            if ctx.message.author.id == self.ownerid:
+                pass
+            else:
+                await self.client.say("Sorry, you don't have sufficient permissions to use this command! Only the owner, **{0}** can.".format(workingdictionary[workingid][name]["authorname"]))
+                return
 
         try:
             with open("cogs/tags/{0}.json".format(ctx.message.server.id)) as mytags:
@@ -152,9 +162,12 @@ class FilesCog:
                 workingdictionary = value
                 workingid = ctx.message.server.id
 
-        if ctx.message.author.id != workingdictionary[workingid][name]["authorid"] or ctx.message.author.id != self.ownerid:
-            await self.client.say("Sorry, you don't have sufficient permissions to use this command! Only the owner, **{0}** can.".format(workingdictionary[workingid][name]["authorname"]))
-            return
+        if ctx.message.author.id != workingdictionary[workingid][name]["authorid"]:
+            if ctx.message.author.id == self.ownerid:
+                pass
+            else:
+                await self.client.say("Sorry, you don't have sufficient permissions to use this command! Only the owner, **{0}** can.".format(workingdictionary[workingid][name]["authorname"]))
+                return
 
         try:
 
@@ -190,7 +203,9 @@ class FilesCog:
         # Basically, a giant string will be sent in the embed.
         keystring = ""
 
-        if len(workingdictionary[workingid]) == 0:
+        if workingdictionary[workingid] is None:
+            keystring = "No tags currently exist!"
+        elif len(workingdictionary[workingid]) == 0:
             keystring = "No tags currently exist!"
         else:
             for key in workingdictionary[workingid]:
@@ -198,7 +213,7 @@ class FilesCog:
                 keystring += "\n"
 
         listembed = discord.Embed(
-            description="List of the currently stored tags..",
+            description="List of the currently stored tags.",
             color=14434903)
 
         listembed.title = "Here Be Tags"
@@ -232,6 +247,26 @@ class FilesCog:
 
         except KeyError:
             await self.client.say("That tag does not exist!")
+
+    async def on_server_join(self, server):
+
+        try:
+            with open("cogs/tags/{0}.json".format(server.id)) as f:
+                try:
+                    data = json.load(f)
+                except ValueError:
+                    data = {}
+                self.tagdicts.append( {server.id: data} )
+                print("New server joined, but there's already an existing tag file. Tag file {0} has been loaded.".format(server.id))
+
+        except FileNotFoundError:
+            with open("cogs/tags/{0}.json".format(server.id), "a+") as f:
+                print("New tags file created on server join: {0}".format(server.id))
+                self.tagdicts.append( {server.id: None} )
+
+        except Exception as e:
+            print("An error has occurred. {0}".format(e))
+
 
 
 def setup(client):

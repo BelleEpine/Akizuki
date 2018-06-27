@@ -97,7 +97,7 @@ class UserCog:
 
         emojistring1 = ""
         for x in ctx.message.server.emojis[0:25]:
-            emojistring1 += x.name + ": " + str(x) + "\n"
+            emojistring1 += x.name + " : " + str(x) + "\n"
 
         emojistring2 = ""
         for x in ctx.message.server.emojis[25:]:
