@@ -50,7 +50,7 @@ with open("config.json", "r") as my_file:
 client = commands.Bot(command_prefix=bot_prefix)
 
 # Defines the cogs to be loaded when the bot starts up.
-bot_cogs = ["cogs.rng", "cogs.files", "cogs.math", "cogs.users", "cogs.action", "cogs.millionlive"]
+bot_cogs = ["cogs.rng", "cogs.files", "cogs.math", "cogs.users", "cogs.action", "cogs.millionlive", "cogs.wows"]
 loaded_bot_cogs = []
 unloaded_bot_cogs = []
 
@@ -76,9 +76,6 @@ async def on_ready():
     print("Total of {0} cogs loaded.".format(len(bot_cogs)))
 
     await client.change_presence(game=Game(name="{0}help | with DesDiv 61".format(bot_prefix)))
-
-
-
 
 '''
 @client.command(pass_context = True)
@@ -146,6 +143,9 @@ async def cogs():
     loaded_cogstring = ""
     for x in loaded_bot_cogs:
         loaded_cogstring += x[5:] + "\n"
+
+    if loaded_cogstring == "":
+        loaded_cogstring = "Nothing!"
 
     unloaded_cogstring = ""
     for x in unloaded_bot_cogs:
@@ -238,6 +238,24 @@ async def ping(ctx):
     await resp.edit(content=f'Pong! That took {1000*diff.total_seconds():.1f}ms.')
     """
 
+# TODO - Respond to illegitimate channel param
+@client.command(pass_context=True)
+async def echo(ctx, channel: discord.Channel = None, *, content: str = None):
+    """Bot will copy whatever you say in a given channel."""
+
+    if ctx.message.author.id != ownerid:
+        await client.say("Sorry, you don't have sufficient permissions to use this command!")
+        return
+
+    if content is None:
+        await client.say("You must enter a message to send!")
+        return
+
+    if "@everyone" in content or "@here" in content:
+        await client.say("You cannot mention everyone or here!")
+        return
+
+    await client.send_message(channel, content=content)
 
 # TODO I don't know. Just make it better I guess. Currently turned off.
 @client.event

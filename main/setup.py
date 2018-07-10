@@ -22,6 +22,7 @@ class Setup(object):
         self.userconfirmation = ""
         self.installDependenciesStatus = False
         self.ownerid = ""
+        self.wows_api_key = ""
 
         self.now = datetime.datetime.now()
 
@@ -48,14 +49,20 @@ class Setup(object):
             messagebox.showerror("Error", "Setup has been cancelled.")
             sys.exit()
 
+        self.wows_api_key = simpledialog.askstring("Input", "This part is optional: What is the WOWS API key?", parent=self.window)
+
+        if self.wows_api_key is None:
+            messagebox.showerror("Error", "Setup has been cancelled.")
+            sys.exit()
+
     def validitycheck(self):
         """Checks the user's inputs against various conditions that would be problematic for the bot."""
 
         # Looks for empty inputs and prefixes of purely spaces
-        if self.bot_token != "" and self.bot_prefix != "" and not self.bot_prefix.isspace():
+        if self.bot_token != "" and self.bot_prefix != "" and not self.bot_prefix.isspace() and self.ownerid != "":
             print("Valid input.")  # Just printing to the console.
 
-        elif self.bot_token == "" or self.bot_prefix == "" or self.bot_prefix.isspace():
+        elif self.bot_token == "" or self.bot_prefix == "" or self.bot_prefix.isspace() or self.ownerid == "":
             messagebox.showerror(
                 "Warning", "One of your inputs is invalid. The program will run again.")
             main()
@@ -63,10 +70,10 @@ class Setup(object):
     def confirmation(self):
         """Confirms the user's inputs with them."""
 
-        self.userconfirmation = messagebox.askyesno("Confirmation", "So your bot token is: \n{0} \nand your bot prefix is: \n{1} \nand your owner ID is: \n{2}".format(self.bot_token, self.bot_prefix, self.ownerid))
+        self.userconfirmation = messagebox.askyesno("Confirmation", "So your bot token is: \n{0} \nand your bot prefix is: \n{1} \nand your owner ID is: \n{2} \nand your WOWS API Key is: \n{3}".format(self.bot_token, self.bot_prefix, self.ownerid, self.wows_api_key))
 
         if self.userconfirmation is True:
-            messagebox.showinfo("Information", "Okay, your bot token, prefix, and owner ID have been set.")
+            messagebox.showinfo("Information", "Okay, your bot token, prefix, and owner ID and WOWS API Key have been set.")
 
         elif self.userconfirmation is False:
             messagebox.showinfo("Information", "Okay, running the program again.")
@@ -75,7 +82,7 @@ class Setup(object):
     def configassign(self):
         """Writes the user's inputs to a text file to store them for the bot."""
 
-        data = {"Bot Token": self.bot_token, "Bot Prefix": self.bot_prefix, "Owner ID": self.ownerid}
+        data = {"Bot Token": self.bot_token, "Bot Prefix": self.bot_prefix, "Owner ID": self.ownerid, "WOWS API Key": self.wows_api_key}
 
         with open("config.json", "w") as my_file:
             json.dump(data, my_file, indent=2)
@@ -89,6 +96,7 @@ class Setup(object):
             my_file.write("Bot Token: " + self.bot_token + "\n")
             my_file.write("Bot Prefix: " + self.bot_prefix + "\n")
             my_file.write("Owner ID: " + self.ownerid + "\n")
+            my_file.write("WOWS API Key: " + self.wows_api_key + "\n")
             my_file.write("\n")
 
     def installdependencies(self):

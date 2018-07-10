@@ -5,8 +5,6 @@ main/cogs/millionlive/*
 !main/cogs/millionlive/.gitkeep
 !main/cogs/millionlive/millionlive.py
 
-config.txt
-
 confighistory.txt
 
 .idea/

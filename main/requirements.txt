@@ -6,3 +6,4 @@ google-auth-httplib2
 httplib2
 oauth2client
 bs4
+wowspy
