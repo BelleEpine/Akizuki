@@ -5,6 +5,7 @@ import json
 from aiohttp import ClientSession
 from wowspy import WowsAsync
 
+
 class WOWSCog:
 
     def __init__(self, client):

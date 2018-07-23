@@ -8,10 +8,12 @@
 
 # TODO - Fix info command w/ invite link for bot.
 
+
 import logging
 import discord
 from discord import Game
 from discord.ext import commands
+from discord.ext.commands.cooldowns import BucketType
 
 import json
 
@@ -66,12 +68,15 @@ async def on_ready():
     print("------")
     print("\n")
 
+
     for cog in bot_cogs:
         try:
             client.load_extension(cog)
             loaded_bot_cogs.append(cog)
         except Exception as e:
             print("Error loading module {0}. - {1}".format(cog, e))
+    for cog in bot_cogs:
+        client.load_extension(cog)
 
     print("Total of {0} cogs loaded.".format(len(bot_cogs)))
 
@@ -279,6 +284,7 @@ async def on_message(message):
         return
 
     await client.process_commands(message)
+
 
 
 client.run(bot_token)

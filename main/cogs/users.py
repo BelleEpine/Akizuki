@@ -1,7 +1,10 @@
 import discord
 from discord.ext import commands
+from discord.utils import get
 
 import datetime
+import json
+import math
 
 """Personal note:  these are the limits for embeds: Number of fields = 25, field name = 256, value = 1024, description = 2048"""
 
@@ -11,6 +14,34 @@ class UserCog:
 
     def __init__(self, client):
         self.client = client
+
+        self.server_id_list = []
+
+        # Gathers all the servers the bot is in to create a dictionary out of the string values.
+        for server in self.client.servers:
+            self.server_id_list.append(server.id)
+
+        self.roledicts = []
+
+        for server in self.client.servers:
+            try:
+                with open("cogs/giveme/{0}.json".format(server.id), "r") as mytags:
+                    try:
+                        data = json.load(mytags)
+                    except ValueError:
+                        data = []
+                    self.roledicts.append({server.id: data})
+
+            except FileNotFoundError:
+                with open("cogs/giveme/{0}.json".format(server.id), "a+") as mytags:
+                    print("New giveme file created: {0}".format(server.id))
+                    self.roledicts.append({server.id: data})
+
+            except Exception as e:
+                print("An error has occured. {0}".format(e))
+                continue
+
+        print("Total of {0} role dictionaries loaded.".format(len(self.server_id_list)), self.server_id_list)
 
     @commands.command(pass_context=True)
     async def userinfo(self, ctx, member: discord.User = None):
@@ -102,8 +133,8 @@ class UserCog:
         serverinfoembed.add_field(name="**Channels (Voice/Text)**", value="{0}/{1}".format(voicechannels, textchannels))
         serverinfoembed.add_field(name="**Member Count:**", value=str(len(ctx.message.server.members)))
 
-        serverinfoembed.add_field(name="**Roles({0}) (This list only contains the first 10! Use the roles command to see all of them.):**".format(len(ctx.message.server.roles)), value=rolestring)
-        serverinfoembed.add_field(name="**Emojis({0}) (This list only contains the first 10! Use the emojis command to see all of them.):**".format(len(ctx.message.server.emojis)), value=emojistring)
+        serverinfoembed.add_field(name="**Roles:**", value="{0}".format(len(ctx.message.server.roles)))
+        serverinfoembed.add_field(name="**Emojis:**", value="{0}".format(len(ctx.message.server.emojis)))
 
         serverinfoembed.set_footer(text=datetime.datetime.now().strftime("Generated on: %Y-%m-%d, At: %H:%M:%S%Z"))
 
@@ -145,41 +176,33 @@ class UserCog:
 
     @commands.command(pass_context=True)
     async def roles(self, ctx):
-        role_list = []
+        """Will list all of the roles on the server."""
 
+        # Function for dividing the roles into several shorter lists.
+        def chunks(l, n):
+            for i in range(0, len(l), n):
+                yield l[i:i + n]
+
+        rolenames = []
         for x in ctx.message.server.roles:
-            role_list.append(x)
-
-        for x in role_list:
             if x.is_everyone:
-                role_list.pop(role_list.index(x))
+                continue
+            rolenames.append(x.name)
 
-        rolestring = ""
-        for role in role_list[0:25]:
-            rolestring += role.name + "\n"
+        rolenames_split = list(chunks(rolenames, 20))
 
-        rolestring2 = ""
-        for role in role_list[25:50]:
-            rolestring2 += role.name + "\n"
+        # Sends own embed for each set.
+        for set in rolenames_split:
+            rolestring = ""
 
-        rolestring3 = ""
-        for role in role_list[50:75]:
-            rolestring3 += role.name + "\n"
+            for role in set:
+                rolestring += role + "\n"
 
-        rolestring4 = ""
-        for role in role_list[75:100]:
-            rolestring4 += role.name + "\n"
+            roleembed = discord.Embed(color=14434903)
+            roleembed.add_field(name="**Roles:**", value=rolestring)
 
-        if rolestring is not "":
-            await self.client.say("**Roles 1-25:**\n{0}".format(rolestring))
-        if rolestring2 is not "":
-            await self.client.say("**Roles 25-50:**\n{0}".format(rolestring2))
-        if rolestring3 is not "":
-            await self.client.say("**Roles 50-75:**\n{0}".format(rolestring3))
-        if rolestring4 is not "":
-            await self.client.say("**Roles 75-100:**\n{0}".format(rolestring4))
-        if rolestring is "":
-            await self.client.say("There are currently no roles on this server!")
+            roleembed.set_footer(text=datetime.datetime.now().strftime("Generated on: %Y-%m-%d, At: %H:%M:%S%Z"))
+            await self.client.say(embed=roleembed)
 
     @commands.command(pass_context=True)
     async def profilepicture(self, ctx, member: discord.User = None):
@@ -189,6 +212,185 @@ class UserCog:
             member = ctx.message.author
 
         await self.client.say(member.avatar_url)
+
+    @commands.command(pass_context=True)
+    async def iam(self, ctx, *, role: discord.Role = None):
+        """Self-assignable roles."""
+
+        if role is None:
+            await self.client.say("You must enter a role!")
+            return
+
+        if role in ctx.message.author.roles:
+            await self.client.say("You already have this role!")
+            return
+
+        workingdictionary = None
+        for counter, value in enumerate(self.roledicts):
+            if ctx.message.server.id in value:
+                workingdictionary = value
+                workingid = ctx.message.server.id
+
+        if role.name in workingdictionary[workingid]:
+            await self.client.add_roles(ctx.message.author, get(ctx.message.server.roles, name=role.name))
+            await self.client.say("You now have the **{0}** role!".format(role.name))
+        else:
+            await self.client.say("You cannot assign yourself that role!")
+            return
+
+    @commands.command(pass_context=True)
+    async def iamn(self, ctx, *, role: discord.Role = None):
+        """Removes the role."""
+
+        if role is None:
+            await self.client.say("You must enter a role!")
+            return
+
+        if role not in ctx.message.author.roles:
+            await self.client.say("You don't have this role!")
+            return
+
+        workingdictionary = None
+        for counter, value in enumerate(self.roledicts):
+            if ctx.message.server.id in value:
+                workingdictionary = value
+                workingid = ctx.message.server.id
+
+        if role.name in workingdictionary[workingid]:
+            await self.client.remove_roles(ctx.message.author, get(ctx.message.server.roles, name=role.name))
+            await self.client.say("You now *don't* have the **{0}** role!".format(role.name))
+        else:
+            await self.client.say("That role is not assignable in the first place!")
+            return
+
+    @commands.command(pass_context=True)
+    @commands.has_permissions(manage_roles=True)
+    async def asar(self, ctx, *, role: discord.Role = None):
+        """Adds role to list of SAR"""
+
+        if role is None:
+            await self.client.say("You must enter a role!")
+            return
+        elif role not in ctx.message.server.roles:
+            await self.client.say("That roles does not exist!")
+            return
+
+        workingdictionary = None
+        for counter, value in enumerate(self.roledicts):
+            if ctx.message.server.id in value:
+                workingdictionary = value
+                workingid = ctx.message.server.id
+
+        if role in workingdictionary[workingid]:
+            await self.client.say("That role is already on the list!")
+            return
+
+        if role in ctx.message.server.roles:
+            workingdictionary[workingid].append(role.name)
+            await self.client.say("The **{0}** role has been added to the list.".format(role.name))
+
+        with open("cogs/giveme/{0}.json".format(ctx.message.server.id)) as f:
+            try:
+                data = json.load(f)
+            except ValueError:
+                data = []
+            except Exception as e:
+                print("An error has occurred - {0}".format(e))
+
+        data.append(role.name)
+
+        with open("cogs/giveme/{0}.json".format(ctx.message.server.id), "w") as f:
+            json.dump(data, f, indent=2)
+
+    @commands.command(pass_context=True)
+    @commands.has_permissions(manage_roles=True)
+    async def rsar(self, ctx, *, role: discord.Role = None):
+        """Removes role from list of SAR"""
+
+        workingdictionary = None
+        for counter, value in enumerate(self.roledicts):
+            if ctx.message.server.id in value:
+                workingdictionary = value
+                workingid = ctx.message.server.id
+
+        if role in ctx.message.server.roles:
+            workingdictionary[workingid].pop(workingdictionary[workingid].index(role.name))
+            await self.client.say("The **{0}** role has been removed from the list.".format(role.name))
+
+        with open("cogs/giveme/{0}.json".format(ctx.message.server.id)) as f:
+            try:
+                data = json.load(f)
+            except ValueError:
+                data = []
+            except Exception as e:
+                print("An error has occurred - {0}".format(e))
+
+        data.pop(data.index(role.name))
+
+        with open("cogs/giveme/{0}.json".format(ctx.message.server.id), "w") as f:
+            json.dump(data, f, indent=2)
+
+    @commands.command(pass_context=True)
+    async def lsar(self, ctx):
+        """Lists all the ASR"""
+
+        workingdictionary = None
+        for counter, value in enumerate(self.roledicts):
+            if ctx.message.server.id in value:
+                workingdictionary = value
+                workingid = ctx.message.server.id
+
+        def chunks(l, n):
+            for i in range(0, len(l), n):
+                yield l[i:i + n]
+
+        split_lsar = list(chunks(workingdictionary[workingid], 20))
+
+        for set in split_lsar:
+            rolestring = ""
+
+            for role in set:
+                rolestring += role + "\n"
+
+            roleembed = discord.Embed(color=14434903)
+
+            if rolestring is "":
+                rolestring = "None, currently!"
+
+            roleembed.add_field(name="**Self Assignable Roles:**", value=rolestring)
+
+            roleembed.set_footer(text=datetime.datetime.now().strftime("Generated on: %Y-%m-%d, At: %H:%M:%S%Z"))
+            await self.client.say(embed=roleembed)
+
+        if len(split_lsar) == 0:
+            roleembed = discord.Embed(color=14434903)
+
+            rolestring = "None, currently!"
+
+            roleembed.add_field(name="**Self Assignable Roles:**", value=rolestring)
+
+            roleembed.set_footer(text=datetime.datetime.now().strftime("Generated on: %Y-%m-%d, At: %H:%M:%S%Z"))
+            await self.client.say(embed=roleembed)
+
+    async def on_server_join(self, server):
+        """Event trigger to deal with joined servers and created json files."""
+
+        try:
+            with open("cogs/giveme/{0}.json".format(server.id)) as f:
+                try:
+                    data = json.load(f)
+                except ValueError:
+                    data = []
+                self.roledicts.append( {server.id: data} )
+                print("New server joined, but there's already an existing roles file. Role file {0} has been loaded.".format(server.id))
+
+        except FileNotFoundError:
+            with open("cogs/giveme/{0}.json".format(server.id), "a+") as f:
+                print("New roles file created on server join: {0}".format(server.id))
+                self.roledicts.append( {server.id: data} )
+
+        except Exception as e:
+            print("An error has occurred. {0}".format(e))
 
 
 def setup(client):

@@ -249,6 +249,7 @@ class FilesCog:
             await self.client.say("That tag does not exist!")
 
     async def on_server_join(self, server):
+        """Event trigger to help with the bug of tags not working when the bot joins a server while running."""
 
         try:
             with open("cogs/tags/{0}.json".format(server.id)) as f:
