@@ -50,6 +50,7 @@ with open("config.json", "r") as my_file:
 
 # Creates client object to interact with the API
 client = commands.Bot(command_prefix=bot_prefix)
+client.remove_command("help")
 
 # Defines the cogs to be loaded when the bot starts up.
 bot_cogs = ["cogs.rng", "cogs.files", "cogs.math", "cogs.users", "cogs.action", "cogs.millionlive", "cogs.wows"]
@@ -79,6 +80,7 @@ async def on_ready():
         client.load_extension(cog)
 
     print("Total of {0} cogs loaded.".format(len(bot_cogs)))
+
 
     await client.change_presence(game=Game(name="{0}help | with DesDiv 61".format(bot_prefix)))
 
@@ -129,7 +131,7 @@ async def info():
 
     # NEED TO USE RGB INT INSTEAD OF HEX
     infoembed = discord.Embed(
-        description="Bot information. [GitHub Repository](https://github.com/BelleEpine/Akizuki).", color=14434903)
+        description="Bot information. [GitHub Repository](https://github.com/Yuzu/Akizuki).", color=14434903)
 
     infoembed.title = "Akizuki"
 
@@ -261,6 +263,21 @@ async def echo(ctx, channel: discord.Channel = None, *, content: str = None):
         return
 
     await client.send_message(channel, content=content)
+
+@client.command()
+async def help():
+
+    helpembed = discord.Embed(
+        description="Bot information. [GitHub Repository](https://github.com/Yuzu/Akizuki).", color=14434903)
+
+    helpembed.title = "Akizuki"
+
+    # noinspection PyTypeChecker
+    helpembed.add_field(name="Click me for help with commands!", value="[Click me!](https://yuzu.github.io/Akizuki/)")
+
+    helpembed.set_footer(text="Need more help? Contact yuzu#7200")
+
+    await client.say(embed=helpembed)
 
 # TODO I don't know. Just make it better I guess. Currently turned off.
 @client.event

@@ -39,13 +39,20 @@ class millionCog():
         if stickername is None:
             imagename = random.choice(os.listdir("cogs/millionlive/MLstickers"))
         else:
-            if "{0}.gif".format(stickername) in os.listdir("cogs/millionlive/MLstickers"):
-                imagename = stickername
-            else:
-                await self.client.say("That is not a valid sticker name!")
-                return
+            valid = False
+            for x in os.listdir("cogs/millionlive/MLstickers"):
+                print(x)
+                print(stickername.lower())
+                print(x.split("."[0].lower()))
+                if stickername.lower() == x.split(".")[0].lower():
+                    imagename = x
+                    valid = True
 
-        with open("cogs/millionlive/MLstickers/{0}.gif".format(imagename), "rb") as f:
+            if valid is not True:
+                await self.client.say("That is not a valid sticker name!")
+
+
+        with open("cogs/millionlive/MLstickers/{0}".format(imagename), "rb") as f:
             await self.client.send_file(ctx.message.channel, f)
 
     @commands.command()
