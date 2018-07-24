@@ -7,6 +7,7 @@ from wowspy import WowsAsync
 
 
 class WOWSCog:
+    """Cog for World of Warships commands."""
 
     def __init__(self, client):
 
