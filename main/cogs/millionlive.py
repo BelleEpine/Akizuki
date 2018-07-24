@@ -41,9 +41,6 @@ class millionCog():
         else:
             valid = False
             for x in os.listdir("cogs/millionlive/MLstickers"):
-                print(x)
-                print(stickername.lower())
-                print(x.split("."[0].lower()))
                 if stickername.lower() == x.split(".")[0].lower():
                     imagename = x
                     valid = True
