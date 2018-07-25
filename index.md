@@ -51,7 +51,7 @@
 
 ## *Users Cog*
 > Cog meant to interact with the user data type in Discord.
->
+
 |Command| Purpose
 |--|--|
 |emojis| Lists all of the current server's emojis.
