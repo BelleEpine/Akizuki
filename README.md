@@ -26,3 +26,5 @@ Written as a personal project, this is my first foray into something as advanced
 
 * *Akizuki is named after the WWII Era Destroyer.*
 * I'm still learning, don't mind any horrible mistakes! :)
+
+# [Command Help](https://yuzu.github.io/Akizuki/)
