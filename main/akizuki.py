@@ -227,7 +227,11 @@ async def ping(ctx):
 
     resp = await client.say('Pong! Loading...')
     diff = resp.timestamp - ctx.message.timestamp
-    await client.edit_message(resp, f'Pong! That took {1000*diff.total_seconds():.1f}ms.')
+	
+    ping = diff.microseconds / 1000
+    await client.edit_message(resp, "Pong! That took {0} ms.".format(ping))
+
+
 
 """
 async: 
@@ -293,12 +297,18 @@ async def on_message_delete(message):
 @client.event
 async def on_message(message):
     """Will make sure that the bot does not work in DMs, and cannot ping @everyone by accident."""
+    '''
+    if message.author.id == "142665321931603968":
+        await client.add_reaction(message, "\N{snowflake}")
+        '''
 
     if message.server is None:
         return
 
     if "@everyone" in message.content:
         return
+    
+
 
     await client.process_commands(message)
 

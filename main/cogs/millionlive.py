@@ -61,7 +61,7 @@ class millionCog():
         namestring = ""
 
         for sticker in os.listdir("cogs/millionlive/MLstickers"):
-            namestring += sticker + "\n"
+            namestring += sticker.split(".")[0] + "\n"
 
         stickerembed.add_field(name="**Sticker List:**", value=namestring)
 
