@@ -3,17 +3,7 @@
 You can use this on master build, but it'll be next to useless.
 '"""
 
-from __future__ import print_function
-from apiclient.discovery import build
-from httplib2 import Http
-from oauth2client import file, client, tools
-
-
-import datetime
-import threading
-import time
 import os
-import json
 
 import discord
 from discord.ext import commands
