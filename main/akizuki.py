@@ -270,6 +270,7 @@ async def echo(ctx, channel: discord.Channel = None, *, content: str = None):
 
 @client.command()
 async def help():
+    """Returns information for help with the bot."""
 
     helpembed = discord.Embed(
         description="Bot information. [GitHub Repository](https://github.com/Yuzu/Akizuki).", color=14434903)

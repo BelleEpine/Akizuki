@@ -21,11 +21,12 @@ class UserCog:
         for server in self.client.servers:
             self.server_id_list.append(server.id)
 
+        # Gathers all the servers the bot is in, and creates a dictionary in the list. List contents: Server ID: [list of iam roles here], etc, etc
         self.roledicts = []
 
         for server in self.client.servers:
             try:
-                with open("cogs/giveme/{0}.json".format(server.id), "r") as mytags:
+                with open("cogs/iam/{0}.json".format(server.id), "r") as mytags:
                     try:
                         data = json.load(mytags)
                     except ValueError:
@@ -33,8 +34,9 @@ class UserCog:
                     self.roledicts.append({server.id: data})
 
             except FileNotFoundError:
-                with open("cogs/giveme/{0}.json".format(server.id), "a+") as mytags:
-                    print("New giveme file created: {0}".format(server.id))
+                with open("cogs/iam/{0}.json".format(server.id), "a+") as mytags:
+                    data = []
+                    print("New iam file created: {0}".format(server.id))
                     self.roledicts.append({server.id: data})
 
             except Exception as e:
@@ -225,6 +227,8 @@ class UserCog:
             await self.client.say("You already have this role!")
             return
 
+        # Enumerates over self.roledicts to look for the value which matches the ctx server ID
+
         workingdictionary = None
         for counter, value in enumerate(self.roledicts):
             if ctx.message.server.id in value:
@@ -289,7 +293,7 @@ class UserCog:
             workingdictionary[workingid].append(role.name)
             await self.client.say("The **{0}** role has been added to the list.".format(role.name))
 
-        with open("cogs/giveme/{0}.json".format(ctx.message.server.id)) as f:
+        with open("cogs/iam/{0}.json".format(ctx.message.server.id)) as f:
             try:
                 data = json.load(f)
             except ValueError:
@@ -299,7 +303,7 @@ class UserCog:
 
         data.append(role.name)
 
-        with open("cogs/giveme/{0}.json".format(ctx.message.server.id), "w") as f:
+        with open("cogs/iam/{0}.json".format(ctx.message.server.id), "w") as f:
             json.dump(data, f, indent=2)
 
     @commands.command(pass_context=True)
@@ -317,7 +321,7 @@ class UserCog:
             workingdictionary[workingid].pop(workingdictionary[workingid].index(role.name))
             await self.client.say("The **{0}** role has been removed from the list.".format(role.name))
 
-        with open("cogs/giveme/{0}.json".format(ctx.message.server.id)) as f:
+        with open("cogs/iam/{0}.json".format(ctx.message.server.id)) as f:
             try:
                 data = json.load(f)
             except ValueError:
@@ -327,7 +331,7 @@ class UserCog:
 
         data.pop(data.index(role.name))
 
-        with open("cogs/giveme/{0}.json".format(ctx.message.server.id), "w") as f:
+        with open("cogs/iam/{0}.json".format(ctx.message.server.id), "w") as f:
             json.dump(data, f, indent=2)
 
     @commands.command(pass_context=True)
@@ -376,7 +380,7 @@ class UserCog:
         """Event trigger to deal with joined servers and created json files."""
 
         try:
-            with open("cogs/giveme/{0}.json".format(server.id)) as f:
+            with open("cogs/iam/{0}.json".format(server.id)) as f:
                 try:
                     data = json.load(f)
                 except ValueError:
@@ -385,8 +389,9 @@ class UserCog:
                 print("New server joined, but there's already an existing roles file. Role file {0} has been loaded.".format(server.id))
 
         except FileNotFoundError:
-            with open("cogs/giveme/{0}.json".format(server.id), "a+") as f:
+            with open("cogs/iam/{0}.json".format(server.id), "a+") as f:
                 print("New roles file created on server join: {0}".format(server.id))
+                data = []
                 self.roledicts.append( {server.id: data} )
 
         except Exception as e:

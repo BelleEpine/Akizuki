@@ -41,11 +41,11 @@ class millionCog():
         else:
             valid = False
             for x in os.listdir("cogs/millionlive/MLstickers"):
-                if stickername.lower() == x.split(".")[0].lower():
+                if stickername.lower() == x.split(".")[0].lower(): # Deals with case by ignoring any case.
                     imagename = x
                     valid = True
 
-            if valid is not True:
+            if not valid:
                 await self.client.say("That is not a valid sticker name!")
 
 

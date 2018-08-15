@@ -57,7 +57,8 @@ class FilesCog:
 
     # pass_context allows for ctx to be used in functions
     # invoke_without_command allows for the tag command to be called by itself and not call itself when other subcommands are called.
-    @commands.group(pass_context=True, invoke_without_command=True)
+    # @commands.group(pass_context=True, invoke_without_command=True)
+    @commands.command(pass_context=True)
     async def tag(self, ctx, name):
             """
             Master command for the tag group of commands.
@@ -71,15 +72,14 @@ class FilesCog:
                     workingdictionary = value
                     workingid = ctx.message.server.id
 
-            if ctx.invoked_subcommand is None:
+            try:
+                await self.client.say(workingdictionary[workingid][name]["content"])
+            except KeyError:
+                print("That tag does not exist!")
 
-                try:
-                    await self.client.say(workingdictionary[workingid][name]["content"])
-                except KeyError:
-                    print("That tag does not exist!")
-
-    @tag.command(pass_context=True)
-    async def add(self, ctx, name: str, *, contents: str):
+    # @tag.command(pass_context=True)
+    @commands.command(pass_context=True)
+    async def tagadd(self, ctx, name: str, *, contents: str):
         """Subcommand allowing for the user to add new tags."""
 
         workingdictionary = None
@@ -115,8 +115,9 @@ class FilesCog:
 
         await self.client.say("Tag with name **{0}** and content **{1}** has been created.".format(name, contents))
 
-    @tag.command(pass_context=True)
-    async def delete(self, ctx, name: str):
+   # @tag.command(pass_context=True)
+    @commands.command(pass_context=True)
+    async def tagdelete(self, ctx, name: str):
         """Subcommand allowing for the user to delete their tags."""
 
         workingdictionary = None
@@ -151,8 +152,9 @@ class FilesCog:
         except KeyError:
             await self.client.say("That tag does not exist!")
 
-    @tag.command(pass_context=True)
-    async def edit(self, ctx, name: str, *, newcontent: str):
+    # @tag.command(pass_context=True)
+    @commands.command(pass_context=True)
+    async def tagedit(self, ctx, name: str, *, newcontent: str):
         """Used to edit an existing tag."""
 
         workingdictionary = None
@@ -189,8 +191,9 @@ class FilesCog:
         except KeyError:
             await self.client.say("That tag does not exist!")
 
-    @tag.command(pass_context=True)
-    async def list(self, ctx):
+    # @tag.command(pass_context=True)
+    @commands.command(pass_context=True)
+    async def taglist(self, ctx):
         """Lists all the current tags in a nice embed."""
 
         workingdictionary = None
@@ -222,8 +225,9 @@ class FilesCog:
 
         await self.client.say(embed=listembed)
 
-    @tag.command(pass_context=True)
-    async def info(self, ctx, name: str):
+    # @tag.command(pass_context=True)
+    @commands.command(pass_context=True)
+    async def taginfo(self, ctx, name: str):
         """Provides the user with information about the tag they pass in an embed"""
 
         workingdictionary = None
