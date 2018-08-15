@@ -31,11 +31,11 @@
 |Command| Purpose
 |--|--|
 |tag **[tagname]**|Returns the specified tag.
-|tag add **[name] [contents]**| Adds a new tag with the specified name and contents.
-|tag delete **[name]**| Deletes the specified tag. **Limited to the Bot Owner and tag creator.**
-|tag edit **[name] [newcontent]**| Edits the specified tag with new content. **Limited to the Bot Owner and tag creator.**
-|tag list| Lists all the tags currently on the server.
-|tag info **[tag]**| Returns information about the specified tag.
+|tagadd **[name] [contents]**| Adds a new tag with the specified name and contents.
+|tagdelete **[name]**| Deletes the specified tag. **Limited to the Bot Owner and tag creator.**
+|tagedit **[name] [newcontent]**| Edits the specified tag with new content. **Limited to the Bot Owner and tag creator.**
+|taglist| Lists all the tags currently on the server.
+|taginfo **[tag]**| Returns information about the specified tag.
 
 
 ## *Math Cog*
