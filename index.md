@@ -83,7 +83,7 @@
 |laugh **[user]**| The best medicine.
 |pat **[user]**| For real. Who doesn't like anime headpats?
 |pout **[user]**| Ditto. ^^
-|shrug **[user]**| ¯\_(ツ)_/¯
+|shrug **[user]**| ¯\\_(ツ)_/¯
 |slap **[user]**| B-Baka!
 |smile **[user]**| The most precious thing in this world.
 |squeal **[user]**| For when you just can't handle the sweetness.
