@@ -306,6 +306,9 @@ async def on_message(message):
     if message.server is None:
         return
 
+    if message.author.id == client.user.id:
+        return
+
     if "@everyone" in message.content:
         return
     
