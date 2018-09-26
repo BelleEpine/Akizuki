@@ -76,8 +76,6 @@ async def on_ready():
             loaded_bot_cogs.append(cog)
         except Exception as e:
             print("Error loading module {0}. - {1}".format(cog, e))
-    for cog in bot_cogs:
-        client.load_extension(cog)
 
     print("Total of {0} cogs loaded.".format(len(bot_cogs)))
 
